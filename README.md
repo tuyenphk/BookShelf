@@ -1,5 +1,11 @@
-# BookShelf
+## BookShelf
 
 The BookShelf application will run as the picture below:
 
-![BookShelf](img/pic.png)
+# For phone 
+
+![BookShelf](img/phone.png)
+
+# For tablet
+
+![BookShelf](img/tablet.png)
