@@ -13,7 +13,7 @@ public class BookApdater extends BaseAdapter {
     private Context c;
     private ArrayList<HashMap> data;
 
-    public BookAdapter(Context c, ArrayList<HashMap> data) {
+    public BookApdater(Context c, ArrayList<HashMap> data) {
         this.c = c;
         this.data = data;
     }
