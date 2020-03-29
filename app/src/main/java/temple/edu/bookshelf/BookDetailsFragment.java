@@ -1,3 +1,5 @@
+// Tuyen Pham 915591991 CIS3515//
+
 package temple.edu.bookshelf;
 
 import android.os.Bundle;
@@ -12,7 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 public class BookDetailsFragment extends Fragment {
-
 
     public BookDetailsFragment() {
         // Required empty public constructor
