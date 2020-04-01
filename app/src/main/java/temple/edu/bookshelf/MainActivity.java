@@ -7,6 +7,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +20,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     ArrayList<Book> books;
     boolean twoPanes;
     BookDetailsFragment bookDetailsFragment;
+    EditText textView;
+    Button searchButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +43,33 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         }
 
         t.commit();
-
         f.executePendingTransactions();
+
+        textView = (EditText)findViewById(R.id.searchField);
+        searchButton = (Button)findViewById(R.id.searchButton);
+
+        searchButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                String searchTerm = textView.getText().toString();
+                ArrayList<Book> results = new ArrayList<>();
+
+                for(int i = 0; i < books.size(); i++) {
+                    Book currentBook = books.get(i);
+                    if(currentBook.getTitle().contains(searchTerm)) {
+                        results.add(currentBook);
+                    } else if(currentBook.getAuthor().contains(searchTerm)) {
+                        results.add(currentBook);
+                    }
+                }
+
+                FragmentManager f = getSupportFragmentManager();
+                FragmentTransaction t = f.beginTransaction();
+
+                t.addToBackStack(null).replace(R.id.frame1, BookListFragment.newInstance(results));
+            }
+        });
     }
 
     private ArrayList<Book> getBooks() {
