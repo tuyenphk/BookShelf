@@ -2,11 +2,13 @@
 
 package temple.edu.bookshelf;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,7 +19,7 @@ import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements BookListFragment.BookSelectedInterface {
 
-    ArrayList<Book> books;
+    ArrayList<Book> booksToDisplay;
     boolean twoPanes;
     BookDetailsFragment bookDetailsFragment;
     EditText textView;
@@ -30,9 +32,13 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
         twoPanes = (findViewById(R.id.detailsFrame) != null);
 
-        books = getBooks();
-        BookListFragment bookListFragment = BookListFragment.newInstance(books);
+        booksToDisplay = getBooks();
 
+        if(savedInstanceState != null) {
+            booksToDisplay = (ArrayList<Book>)savedInstanceState.getSerializable("key");
+        }
+
+        bookListFragment = BookListFragment.newInstance(booksToDisplay);
         FragmentManager f = getSupportFragmentManager();
         FragmentTransaction t = f.beginTransaction();
         t.add(R.id.frame1, bookListFragment);
@@ -53,24 +59,32 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             @Override
             public void onClick(View v) {
                 String searchTerm = textView.getText().toString();
-                ArrayList<Book> results = new ArrayList<>();
+                booksToDisplay = new ArrayList<>();
 
-                for(int i = 0; i < books.size(); i++) {
-                    Book currentBook = books.get(i);
+                ArrayList<Book> allBooks = getBooks();
+                for(int i = 0; i < allBooks.size(); i++) {
+                    Book currentBook = allBooks.get(i);
                     if(currentBook.getTitle().contains(searchTerm)) {
-                        results.add(currentBook);
+                        booksToDisplay.add(currentBook);
                     } else if(currentBook.getAuthor().contains(searchTerm)) {
-                        results.add(currentBook);
+                        booksToDisplay.add(currentBook);
                     }
                 }
 
                 FragmentManager f = getSupportFragmentManager();
                 FragmentTransaction t = f.beginTransaction();
 
-                t.addToBackStack(null).replace(R.id.frame1, BookListFragment.newInstance(results));
+                t.addToBackStack(null).replace(R.id.frame1, BookListFragment.newInstance(booksToDisplay));
                 t.commit();
             }
         });
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
+        outState.putSerializable("key", booksToDisplay);
+
+        super.onSaveInstanceState(outState, outPersistentState);
     }
 
     private ArrayList<Book> getBooks() {
@@ -94,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     public void bookSelected(int index) {
         FragmentManager f = getSupportFragmentManager();
         FragmentTransaction t = f.beginTransaction();
-        Book toPass = books.get(index);
+        Book toPass = getBooks().get(index);
 
         if(twoPanes) {
             bookDetailsFragment.displayBook(toPass);
