@@ -13,14 +13,19 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import org.json.JSONArray;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.lang.reflect.Array;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements BookListFragment.BookSelectedInterface {
 
     ArrayList<Book> booksToDisplay;
-    
+
     boolean twoPanes;
     BookDetailsFragment bookDetailsFragment;
     BookListFragment bookListFragment;
@@ -91,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     }
 
     private ArrayList<Book> getBooks() {
-        ArrayList<Book> arrayList = new ArrayList<>();
+        final ArrayList<Book> arrayList = new ArrayList<>();
 
         arrayList.add(new Book(1, "The Hitchhiker's Guide to the Galaxy", "Douglas Adams", ""));
         arrayList.add(new Book(2, "Eragon", "Christopher Paolini", ""));
@@ -103,6 +108,31 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         arrayList.add(new Book(8, "So Long, and Thanks for All the Fish", "Douglas Adams", ""));
         arrayList.add(new Book(9, "American Gods", "Neil Gaiman", ""));
         arrayList.add(new Book(10, "A Wizard Of Earthsea", "Ursula K. Le Guin", ""));
+
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    BufferedReader bufferedReader = new BufferedReader(
+                            new InputStreamReader(
+                                    new URL("https://kamorris.com/lab/abp/booksearch.php").openStream()
+                            )
+                    );
+                    String books = bufferedReader.readLine();
+                    bufferedReader.close();
+
+                    JSONArray array = new JSONArray(books);
+
+                    int i = array.length();
+                    arrayList.add(new Book(10, "" + i, "Author", ""));
+
+                } catch (Exception e) {
+
+                }
+            }
+        };
+
+        t.start();
 
         return arrayList;
     }
