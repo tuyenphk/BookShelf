@@ -20,8 +20,11 @@ import java.util.HashMap;
 public class MainActivity extends AppCompatActivity implements BookListFragment.BookSelectedInterface {
 
     ArrayList<Book> booksToDisplay;
+    
     boolean twoPanes;
     BookDetailsFragment bookDetailsFragment;
+    BookListFragment bookListFragment;
+
     EditText textView;
     Button searchButton;
 
