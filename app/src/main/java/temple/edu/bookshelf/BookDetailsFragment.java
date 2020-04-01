@@ -22,6 +22,7 @@ public class BookDetailsFragment extends Fragment {
     Book book;
     TextView titleView;
     TextView authorView;
+    TextView imageView;
 
     final static String BOOK_DETAILS_KEY = "book_details_key";
 
@@ -47,6 +48,7 @@ public class BookDetailsFragment extends Fragment {
 
         titleView = v.findViewById(R.id.titleView);
         authorView = v.findViewById(R.id.authorView);
+        imageView = v.findViewById(R.id.imageView);
 
         if(book != null) {
             displayBook(book);
@@ -69,6 +71,7 @@ public class BookDetailsFragment extends Fragment {
     public void displayBook(HashMap<String, String> book) {
         titleView.setText(book.getTitle());
         authorView.setText(book.getAuthor());
+        imageView.setText(book.getCoverURL());
     }
 
 }

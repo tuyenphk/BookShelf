@@ -14,7 +14,6 @@
         android:layout_height="match_parent"
         android:gravity="center|top"
         android:paddingTop="275dp"
-        android:text="@string/hello_blank_fragment"
         android:textSize="30sp" />
 
     <TextView
@@ -22,7 +21,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:text="TextView"
         android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center|bottom"
+        android:paddingBottom="100dp"
+        android:textSize="18sp" />
 
 </FrameLayout>
