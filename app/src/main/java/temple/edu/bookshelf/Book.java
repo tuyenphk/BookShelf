@@ -1,18 +1,23 @@
 package temple.edu.bookshelf;
 
-public class Book {
-    int id;
-    String title;
-    String author;
-    String coverURL;
+import java.util.HashMap;
 
-    public Book(int id, String title, String author) {
+public class Book extends HashMap<String, String> {
+    private int id;
+    private String title;
+    private String author;
+    private String coverURL;
+
+    public Book(int id, String title, String author, String coverURL) {
         this.id = id;
         this.title = title;
         this.author = author;
-        coverURL = "";
+        this.coverURL = coverURL;
     }
 
+    public int getId(){
+        return id;
+    }
     public String getTitle() {
         return title;
     }
@@ -21,4 +26,7 @@ public class Book {
         return author;
     }
 
+    public String getCoverURL(){
+        return coverURL;
+    }
 }

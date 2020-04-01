@@ -23,7 +23,7 @@ public class BookListFragment extends Fragment {
     }
 
     BookSelectedInterface parentActivity;
-    ArrayList<HashMap> books;
+    ArrayList<Book> books;
 
     final static String BOOK_LIST_KEY = "book_list_key";
 
@@ -44,7 +44,7 @@ public class BookListFragment extends Fragment {
 
         Bundle bundle = getArguments();
         if(bundle != null) {
-            books = (ArrayList<HashMap>)bundle.getSerializable(BOOK_LIST_KEY);
+            books = (ArrayList<Book>)bundle.getSerializable(BOOK_LIST_KEY);
         }
     }
 
@@ -67,7 +67,7 @@ public class BookListFragment extends Fragment {
         return view;
     }
 
-    public static BookListFragment newInstance(ArrayList<HashMap> books) {
+    public static BookListFragment newInstance(ArrayList<Book> books) {
         BookListFragment newFragment = new BookListFragment();
         Bundle bundle = new Bundle();
         bundle.putSerializable(BOOK_LIST_KEY, books);

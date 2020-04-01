@@ -19,7 +19,7 @@ public class BookDetailsFragment extends Fragment {
         // Required empty public constructor
     }
 
-    HashMap<String, String> book;
+    Book book;
     TextView titleView;
     TextView authorView;
 
@@ -31,7 +31,11 @@ public class BookDetailsFragment extends Fragment {
 
         Bundle bundle = getArguments();
         if(bundle != null) {
-            book = (HashMap)bundle.getSerializable(BOOK_DETAILS_KEY);
+            int id = bundle.getInt("id");
+            String title = bundle.getString("title");
+            String author = bundle.getString("author");
+            String coverURL = bundle.getString("coverURL");
+            book = new Book(id, title, author, coverURL);
         }
     }
 
@@ -51,28 +55,20 @@ public class BookDetailsFragment extends Fragment {
         return v;
     }
 
-    public static BookDetailsFragment newInstance(HashMap book) {
+    public static BookDetailsFragment newInstance(int id, String title, String author, String coverURL) {
         BookDetailsFragment newFragment = new BookDetailsFragment();
         Bundle bundle = new Bundle();
-        bundle.putSerializable(BOOK_DETAILS_KEY, book);
+        bundle.putInt("id", id);
+        bundle.putString("title", title);
+        bundle.putString("author", author);
+        bundle.putString("coverURL", coverURL);
         newFragment.setArguments(bundle);
         return newFragment;
     }
 
     public void displayBook(HashMap<String, String> book) {
-        String title = new String();
-        String author = new String();
-
-        for(String i : book.keySet()) {
-            title = i;
-        }
-
-        for(String i : book.values()) {
-            author = i;
-        }
-
-        titleView.setText(title);
-        authorView.setText(author);
+        titleView.setText(book.getTitle());
+        authorView.setText(book.getAuthor());
     }
 
 }
