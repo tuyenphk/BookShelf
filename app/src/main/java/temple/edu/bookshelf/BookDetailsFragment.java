@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.HashMap;
@@ -23,6 +24,7 @@ public class BookDetailsFragment extends Fragment {
     TextView titleView;
     TextView authorView;
     TextView imageView;
+    ImageView coverView;
 
     final static String BOOK_DETAILS_KEY = "book_details_key";
 
@@ -48,7 +50,7 @@ public class BookDetailsFragment extends Fragment {
 
         titleView = v.findViewById(R.id.titleView);
         authorView = v.findViewById(R.id.authorView);
-        imageView = v.findViewById(R.id.imageView);
+        coverView = v.findViewById(R.id.coverView);
 
         if(book != null) {
             displayBook(book);
@@ -71,7 +73,13 @@ public class BookDetailsFragment extends Fragment {
     public void displayBook(HashMap<String, String> book) {
         titleView.setText(book.getTitle());
         authorView.setText(book.getAuthor());
-        imageView.setText(book.getCoverURL());
+        if(book.getCoverURL() != "") {
+            try {
+                Picasso.get().load(book.getCoverURL()).into(coverView);
+            } catch (Exception e) {
+
+            }
+        }
     }
 
 }
