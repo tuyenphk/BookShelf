@@ -9,13 +9,17 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.HashMap;
+import com.squareup.picasso.Picasso;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-public class BookDetailsFragment extends Fragment {
 
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class BookDetailsFragment extends Fragment {
+    
     public BookDetailsFragment() {
         // Required empty public constructor
     }
@@ -23,7 +27,6 @@ public class BookDetailsFragment extends Fragment {
     Book book;
     TextView titleView;
     TextView authorView;
-    TextView imageView;
     ImageView coverView;
 
     final static String BOOK_DETAILS_KEY = "book_details_key";
@@ -39,6 +42,7 @@ public class BookDetailsFragment extends Fragment {
             String author = bundle.getString("author");
             String coverURL = bundle.getString("coverURL");
             book = new Book(id, title, author, coverURL);
+//            book = (Book)bundle.getSerializable(BOOK_DETAILS_KEY);
         }
     }
 
@@ -66,11 +70,12 @@ public class BookDetailsFragment extends Fragment {
         bundle.putString("title", title);
         bundle.putString("author", author);
         bundle.putString("coverURL", coverURL);
+//        bundle.putSerializable(BOOK_DETAILS_KEY, book);
         newFragment.setArguments(bundle);
         return newFragment;
     }
 
-    public void displayBook(HashMap<String, String> book) {
+    public void displayBook(Book book) {
         titleView.setText(book.getTitle());
         authorView.setText(book.getAuthor());
         if(book.getCoverURL() != "") {
@@ -83,4 +88,3 @@ public class BookDetailsFragment extends Fragment {
     }
 
 }
-

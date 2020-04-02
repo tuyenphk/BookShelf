@@ -2,25 +2,26 @@
 
 package temple.edu.bookshelf;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 
 import org.json.JSONArray;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.lang.reflect.Array;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 public class MainActivity extends AppCompatActivity implements BookListFragment.BookSelectedInterface {
 
@@ -109,30 +110,25 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         arrayList.add(new Book(9, "American Gods", "Neil Gaiman", ""));
         arrayList.add(new Book(10, "A Wizard Of Earthsea", "Ursula K. Le Guin", ""));
 
-        Thread t = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    BufferedReader bufferedReader = new BufferedReader(
-                            new InputStreamReader(
-                                    new URL("https://kamorris.com/lab/abp/booksearch.php").openStream()
-                            )
-                    );
-                    String books = bufferedReader.readLine();
-                    bufferedReader.close();
+        String url = "https://kamorris.com/lab/abp/booksearch.php";
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONArray>() {
 
-                    JSONArray array = new JSONArray(books);
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        Toast.makeText(MainActivity.this, "" + response.length(), Toast.LENGTH_LONG).show();
+                        for(int i = 0; i < response.length(); i++) {
 
-                    int i = array.length();
-                    arrayList.add(new Book(10, "" + i, "Author", ""));
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
 
-                } catch (Exception e) {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
 
-                }
-            }
-        };
-
-        t.start();
+                    }
+                });
 
         return arrayList;
     }
