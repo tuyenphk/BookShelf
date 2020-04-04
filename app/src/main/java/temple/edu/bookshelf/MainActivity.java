@@ -10,11 +10,15 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -33,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
     EditText textView;
     Button searchButton;
+    int currentBookId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +50,12 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
         if(savedInstanceState != null) {
             booksToDisplay = (ArrayList<Book>)savedInstanceState.getSerializable("key");
+            currentBookId = savedInstanceState.getInt("currentBookId");
+
+            //Attempt to display the last-displayed book
+            if(currentBookId != 0) {
+                bookSelected(currentBookId);
+            }
         }
 
         bookListFragment = BookListFragment.newInstance(booksToDisplay);
@@ -68,7 +79,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             @Override
             public void onClick(View v) {
                 String searchTerm = textView.getText().toString();
-                booksToDisplay = new ArrayList<>();
+                booksToDisplay.clear();
+            //    booksToDisplay = new ArrayList<>();
 
                 ArrayList<Book> allBooks = getBooks();
                 for(int i = 0; i < allBooks.size(); i++) {
@@ -92,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
         outState.putSerializable("key", booksToDisplay);
+        outState.putInt("currentBookId", currentBookId);
 
         super.onSaveInstanceState(outState, outPersistentState);
     }
@@ -111,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         arrayList.add(new Book(10, "A Wizard Of Earthsea", "Ursula K. Le Guin", ""));
 
         String url = "https://kamorris.com/lab/abp/booksearch.php";
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONArray>() {
 
@@ -118,7 +132,18 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                     public void onResponse(JSONArray response) {
                         Toast.makeText(MainActivity.this, "" + response.length(), Toast.LENGTH_LONG).show();
                         for(int i = 0; i < response.length(); i++) {
-
+                            try {
+                                JSONObject temp = response.getJSONObject(i);
+                                Book newBook = new Book(
+                                        temp.getInt("id"),
+                                        temp.getString("title"),
+                                        temp.getString("author"),
+                                        temp.getString("coverURL")
+                                );
+                                arrayList.add(newBook);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 },
@@ -129,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
                     }
                 });
-
+        requestQueue.add(jsonArrayRequest);
         return arrayList;
     }
 
@@ -142,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         if(twoPanes) {
             bookDetailsFragment.displayBook(toPass);
         } else {
+            currentBookId = toPass.getId();
             t.addToBackStack(null).replace(R.id.frame1, BookDetailsFragment.newInstance(
                     toPass.getId(),
                     toPass.getTitle(),
