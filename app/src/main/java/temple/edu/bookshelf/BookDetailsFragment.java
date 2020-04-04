@@ -19,7 +19,7 @@ import androidx.fragment.app.Fragment;
  * A simple {@link Fragment} subclass.
  */
 public class BookDetailsFragment extends Fragment {
-    
+
     public BookDetailsFragment() {
         // Required empty public constructor
     }
