@@ -3,13 +3,10 @@
 package temple.edu.bookshelf;
 
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -22,239 +19,175 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 public class MainActivity extends AppCompatActivity implements BookListFragment.BookSelectedInterface {
 
-    ArrayList<Book> booksToDisplay;
-    boolean twoPanes;
-    BookDetailsFragment bookDetailsFragment;
+    private static final String BOOKS_KEY = "books";
+    private static final String SELECTED_BOOK_KEY = "selectedBook";
+
+    FragmentManager fm;
+
+    boolean twoPane;
     BookListFragment bookListFragment;
+    BookDetailsFragment bookDetailsFragment;
 
-    EditText textView;
-    Button searchButton;
+    ArrayList<Book> books;
+    RequestQueue requestQueue;
+    Book selectedBook;
 
-    int currentBookId = 0;
+    EditText searchEditText;
+
+    private final String SEARCH_API = "https://kamorris.com/lab/abp/booksearch.php?search=";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
 
-        twoPanes = (findViewById(R.id.detailsFrame) != null);
+        searchEditText = findViewById(R.id.searchEditText);
 
-//        booksToDisplay = getBooks();
-
-        if(savedInstanceState != null) {
-            booksToDisplay = (ArrayList<Book>)savedInstanceState.getSerializable("key");
-            currentBookId = savedInstanceState.getInt("currentBookId");
-
-            //Attempt to display the last-displayed book
-            if(currentBookId != 0) {
-                bookSelected(currentBookId);
-            }
-
-            bookListFragment = BookListFragment.newInstance(booksToDisplay);
-
-            FragmentManager f = getSupportFragmentManager();
-            FragmentTransaction t = f.beginTransaction();
-            t.add(R.id.frame1, bookListFragment);
-
-            if(twoPanes) {
-                bookDetailsFragment = new BookDetailsFragment();
-                t.add(R.id.detailsFrame, bookDetailsFragment);
-            }
-
-            t.commit();
-
-            f.executePendingTransactions();
-        } else {
-            booksToDisplay = getBooks();
-        }
-
-
-
-        textView = (EditText)findViewById(R.id.searchField);
-        searchButton = (Button)findViewById(R.id.searchButton);
-
-        searchButton.setOnClickListener(new View.OnClickListener() {
-
+        /*
+        Perform a search
+         */
+        findViewById(R.id.searchButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                fetchBooks(searchEditText.getText().toString());
+            }
+        });
 
-                //Search books for the search term by going through each book in the database
-                //(This is done by re-calling the getBooks() method)
+        /*
+        If we previously saved a book search and/or selected a book, then use that
+        information to set up the necessary instance variables
+         */
+        if (savedInstanceState != null) {
+            books = savedInstanceState.getParcelableArrayList(BOOKS_KEY);
+            selectedBook = savedInstanceState.getParcelable(SELECTED_BOOK_KEY);
+        }
+        else
+            books = new ArrayList<Book>();
 
-                String searchTerm = textView.getText().toString();
+        twoPane = findViewById(R.id.container2) != null;
+        fm = getSupportFragmentManager();
 
-                booksToDisplay.clear();
+        requestQueue = Volley.newRequestQueue(this);
 
-                String url = "https://kamorris.com/lab/abp/booksearch.php?search=" + searchTerm;
+        /*
+        Get an instance of BookListFragment with an empty list of books
+        if we didn't previously do a search, or use the previous list of
+        books if we had previously performed a search
+         */
+        bookListFragment = BookListFragment.newInstance(books);
 
-                RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        fm.beginTransaction()
+                .replace(R.id.container1, bookListFragment)
+                .commit();
 
-                JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
-                        new Response.Listener<JSONArray>() {
+        /*
+        If we have two containers available, load a single instance
+        of BookDetailsFragment to display all selected books.
+        If a book was previously selected, show that book in the book details fragment
+        *NOTE* we could have simplified this to a single line by having the
+        fragment's newInstance() method ignore a null reference, but this way allow
+        us to limit the amount of things we have to change in the Fragment's implementation.
+         */
+        if (twoPane) {
+            if (selectedBook != null)
+                bookDetailsFragment = BookDetailsFragment.newInstance(selectedBook);
+            else
+                bookDetailsFragment = new BookDetailsFragment();
 
-                            @Override
-                            public void onResponse(JSONArray response) {
-                                Toast.makeText(MainActivity.this, "" + response.length(), Toast.LENGTH_LONG).show();
-                                for(int i = 0; i < response.length(); i++) {
-                                    try {
-                                        JSONObject temp = response.getJSONObject(i);
-                                        Book newBook = new Book(
-                                                temp.getInt("book_id"),
-                                                temp.getString("title"),
-                                                temp.getString("author"),
-                                                temp.getString("cover_url")
-                                        );
-                                        booksToDisplay.add(newBook);
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-//                            arrayList.add(i);
-                                }
+            fm.beginTransaction()
+                    .replace(R.id.container2, bookDetailsFragment)
+                    .commit();
+        } else {
+            if (selectedBook != null) {
+                fm.beginTransaction()
+                        .replace(R.id.container1, BookDetailsFragment.newInstance(selectedBook))
+                        // Transaction is reversible
+                        .addToBackStack(null)
+                        .commit();
+            }
+        }
+    }
 
-
-                                bookListFragment.updateBooks(booksToDisplay);
-
-//                                FragmentManager f = getSupportFragmentManager();
-//                                FragmentTransaction t = f.beginTransaction();
-//
-//                                t.addToBackStack(null).replace(R.id.frame1, BookListFragment.newInstance(booksToDisplay));
-//
-//                                t.commit();
-                            }
-                        },
-                        new Response.ErrorListener() {
-
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-
-                            }
-                        });
-
-                requestQueue.add(jsonArrayRequest);
-//                booksToDisplay = new ArrayList<>();
-
-//                ArrayList<Book> allBooks = getBooks();
-//                for(int i = 0; i < allBooks.size(); i++) {
-//                    Book currentBook = allBooks.get(i);
-//                    if(currentBook.getTitle().contains(searchTerm)) {
-//                        booksToDisplay.add(currentBook);
-//                    } else if(currentBook.getAuthor().contains(searchTerm)) {
-//                        booksToDisplay.add(currentBook);
-//                    }
-//                }
-
-//                bookListFragment.updateBooks(booksToDisplay);
-
+    /*
+    Fetch a set of "books" from from the web service API
+     */
+    private void fetchBooks(String searchString) {
+        /*
+        A Volloy JSONArrayRequest will automatically convert a JSON Array response from
+        a web server to an Android JSONArray object
+         */
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(SEARCH_API + searchString, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                if (response.length() > 0) {
+                    books.clear();
+                    for (int i = 0; i < response.length(); i++) {
+                        try {
+                            JSONObject bookJSON;
+                            bookJSON = response.getJSONObject(i);
+                            books.add(new Book (bookJSON.getInt(Book.JSON_ID),
+                                    bookJSON.getString(Book.JSON_TITLE),
+                                    bookJSON.getString(Book.JSON_AUTHOR),
+                                    bookJSON.getString(Book.JSON_COVER_URL)));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    updateBooksDisplay();
+                } else {
+                    Toast.makeText(MainActivity.this, getString(R.string.search_error_message), Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
 
             }
         });
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
-        outState.putSerializable("key", booksToDisplay);
-        outState.putInt("currentBookId", currentBookId);
-
-        super.onSaveInstanceState(outState, outPersistentState);
-    }
-
-    private ArrayList<Book> getBooks() {
-        final ArrayList<Book> arrayList = new ArrayList<>();
-
-        arrayList.add(new Book(1, "The Hitchhiker's Guide to the Galaxy", "Douglas Adams", ""));
-        arrayList.add(new Book(2, "Eragon", "Christopher Paolini", ""));
-        arrayList.add(new Book(3, "A Walk in the Woods", "Bill Bryson", ""));
-        arrayList.add(new Book(4, "A Tale of Two Cities", "Charles Dickens", ""));
-        arrayList.add(new Book(5, "Ringworld", "Larry Niven", ""));
-        arrayList.add(new Book(6, "The Restaurant at the End of the Universe", "Douglas Adams", ""));
-        arrayList.add(new Book(7, "Life, the Universe and Everything", "Douglas Adams", ""));
-        arrayList.add(new Book(8, "So Long, and Thanks for All the Fish", "Douglas Adams", ""));
-        arrayList.add(new Book(9, "American Gods", "Neil Gaiman", ""));
-        arrayList.add(new Book(10, "A Wizard Of Earthsea", "Ursula K. Le Guin", ""));
-
-        String url = "https://kamorris.com/lab/abp/booksearch.php";
-
-        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONArray>() {
-
-                    @Override
-                    public void onResponse(JSONArray response) {
-//                        Toast.makeText(MainActivity.this, "" + response.length(), Toast.LENGTH_LONG).show();
-                        for(int i = 0; i < response.length(); i++) {
-                            try {
-                                JSONObject temp = response.getJSONObject(i);
-                                Book newBook = new Book(
-                                        temp.getInt("book_id"),
-                                        temp.getString("title"),
-                                        temp.getString("author"),
-                                        temp.getString("cover_url")
-                                );
-                                arrayList.add(newBook);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-//                            arrayList.add(i);
-                        }
-
-                        bookListFragment = BookListFragment.newInstance(arrayList);
-
-                        FragmentManager f = getSupportFragmentManager();
-                        FragmentTransaction t = f.beginTransaction();
-                        t.add(R.id.frame1, bookListFragment);
-
-                        if(twoPanes) {
-                            bookDetailsFragment = new BookDetailsFragment();
-                            t.add(R.id.detailsFrame, bookDetailsFragment);
-                        }
-
-                        t.commit();
-
-                        f.executePendingTransactions();
-                    }
-                },
-                new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                    }
-                });
-
         requestQueue.add(jsonArrayRequest);
+    };
 
-
-
-        return arrayList;
+    private void updateBooksDisplay() {
+        /*
+        Remove the BookDetailsFragment from the container after a search
+        if it is the currently attached fragment
+         */
+        if (fm.findFragmentById(R.id.container1) instanceof BookDetailsFragment)
+            fm.popBackStack();
+        bookListFragment.updateBooksDisplay(books);
     }
 
     @Override
     public void bookSelected(int index) {
-        FragmentManager f = getSupportFragmentManager();
-        FragmentTransaction t = f.beginTransaction();
-
-        Book toPass = getBooks().get(index);
-
-        if(twoPanes) {
-            bookDetailsFragment.displayBook(toPass);
-        } else {
-            currentBookId = toPass.getId();
-            t.addToBackStack(null).replace(R.id.frame1, BookDetailsFragment.newInstance(
-                    toPass.getId(),
-                    toPass.getTitle(),
-                    toPass.getAuthor(),
-                    toPass.getCoverURL()
-            ));
+        selectedBook = books.get(index);
+        if (twoPane)
+            /*
+            Display selected book using previously attached fragment
+             */
+            bookDetailsFragment.displayBook(selectedBook);
+        else {
+            /*
+            Display book using new fragment
+             */
+            fm.beginTransaction()
+                    .replace(R.id.container1, BookDetailsFragment.newInstance(selectedBook))
+                    // Transaction is reversible
+                    .addToBackStack(null)
+                    .commit();
         }
-        t.commit();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // Save previously searched books as well as selected book
+        outState.putParcelableArrayList(BOOKS_KEY, books);
+        outState.putParcelable(SELECTED_BOOK_KEY, selectedBook);
     }
 }

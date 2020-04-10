@@ -11,80 +11,68 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class BookDetailsFragment extends Fragment {
 
-    public BookDetailsFragment() {
-        // Required empty public constructor
+    private static final String BOOK_KEY = "book";
+    private Book book;
+
+    TextView titleTextView, authorTextView;
+    ImageView coverImageView;
+
+    public BookDetailsFragment() {}
+
+    public static BookDetailsFragment newInstance(Book book) {
+        BookDetailsFragment fragment = new BookDetailsFragment();
+        Bundle args = new Bundle();
+
+        /*
+         Our Book class implements the Parcelable interface
+         therefore we can place one inside a bundle
+         by using that put() method.
+         */
+        args.putParcelable(BOOK_KEY, book);
+        fragment.setArguments(args);
+        return fragment;
     }
 
-    Book book;
-    TextView titleView;
-    TextView authorView;
-    ImageView coverView;
-
-    final static String BOOK_DETAILS_KEY = "book_details_key";
-
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Bundle bundle = getArguments();
-        if(bundle != null) {
-            int id = bundle.getInt("id");
-            String title = bundle.getString("title");
-            String author = bundle.getString("author");
-            String coverURL = bundle.getString("coverURL");
-            book = new Book(id, title, author, coverURL);
-//            book = (Book)bundle.getSerializable(BOOK_DETAILS_KEY);
+        if (getArguments() != null) {
+            book = (Book) getArguments().getParcelable(BOOK_KEY);
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_book_details, container, false);
 
-        titleView = v.findViewById(R.id.titleView);
-        authorView = v.findViewById(R.id.authorView);
-        coverView = v.findViewById(R.id.coverView);
+        titleTextView = v.findViewById(R.id.titleTextView);
+        authorTextView = v.findViewById(R.id.authorTextView);
+        coverImageView = v.findViewById(R.id.coverImageView);
 
-        if(book != null) {
+        /*
+        Because this fragment can be created with or without
+        a book to display when attached, we need to make sure
+        we don't try to display a book if one isn't provided
+         */
+        if (book != null)
             displayBook(book);
-        }
-
         return v;
     }
 
-    public static BookDetailsFragment newInstance(int id, String title, String author, String coverURL) {
-        BookDetailsFragment newFragment = new BookDetailsFragment();
-        Bundle bundle = new Bundle();
-        bundle.putInt("id", id);
-        bundle.putString("title", title);
-        bundle.putString("author", author);
-        bundle.putString("coverURL", coverURL);
-//        bundle.putSerializable(BOOK_DETAILS_KEY, book);
-        newFragment.setArguments(bundle);
-        return newFragment;
-    }
-
+    /*
+    This method is used both internally and externally (from the activity)
+    to display a book
+     */
     public void displayBook(Book book) {
-        titleView.setText(book.getTitle());
-        authorView.setText(book.getAuthor());
-        if(book.getCoverURL() != "") {
-            try {
-                Picasso.get().load(book.getCoverURL()).into(coverView);
-            } catch (Exception e) {
-
-            }
-        }
+        titleTextView.setText(book.getTitle());
+        authorTextView.setText(book.getAuthor());
+        // Picasso simplifies image loading from the web.
+        // No need to download separately.
+        Picasso.get().load(book.getCoverUrl()).into(coverImageView);
     }
-
 }
