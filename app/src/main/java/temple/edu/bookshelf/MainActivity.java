@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
+import temple.edu.audiobookplayer.AudiobookService;
+
 public class MainActivity extends AppCompatActivity implements BookListFragment.BookSelectedInterface, BookDetailsFragment.BookMediaInterface {
 
     private static final String BOOKS_KEY = "books";
@@ -45,12 +47,14 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     EditText searchEditText;
     boolean connected;
     Intent serviceIntent;
+    AudiobookService.MediaControlBinder audiobookService;
 
  //   ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             connected = true;
+            audiobookService = (AudiobookService.MediaControlBinder) service;
         }
 
         @Override
@@ -65,6 +69,9 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        serviceIntent = new Intent(MainActivity.this, AudiobookService.class);
+        bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
 
         searchEditText = findViewById(R.id.searchEditText);
 
