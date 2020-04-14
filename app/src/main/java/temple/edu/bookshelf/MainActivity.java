@@ -191,4 +191,16 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         outState.putParcelableArrayList(BOOKS_KEY, books);
         outState.putParcelable(SELECTED_BOOK_KEY, selectedBook);
     }
+
+    public void playButtonClicked(Book book) {
+        //To do
+    }
+
+    public void pauseButtonClicked() {
+        //To do
+    }
+
+    public void stopButtonClicked() {
+        //To do
+    }
 }
