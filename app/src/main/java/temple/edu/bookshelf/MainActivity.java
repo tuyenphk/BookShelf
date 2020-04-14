@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
     EditText searchEditText;
     boolean connected;
+    Intent serviceIntent;
 
     private final String SEARCH_API = "https://kamorris.com/lab/abp/booksearch.php?search=";
 
@@ -62,9 +63,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                 fetchBooks(searchEditText.getText().toString());
             }
         });
-
-        Intent intent;
-
+        
         ServiceConnection serviceConnection = new ServiceConnection() {
 
             @Override
@@ -214,6 +213,10 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
     public void playButtonClicked(Book book) {
         Toast.makeText(MainActivity.this, "Play button clicked!", Toast.LENGTH_SHORT).show();
+        if(connected) {
+            int bookId = book.getId();
+            //Start playing
+        }
     }
 
     public void pauseButtonClicked() {
