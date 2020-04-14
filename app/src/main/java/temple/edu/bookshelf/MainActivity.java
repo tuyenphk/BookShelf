@@ -4,11 +4,11 @@ package temple.edu.bookshelf;
 
 import android.content.ComponentName;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     boolean twoPane;
     BookListFragment bookListFragment;
     BookDetailsFragment bookDetailsFragment;
+    SeekBar seekBar;
 
     ArrayList<Book> books;
     RequestQueue requestQueue;
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     boolean connected;
     Intent serviceIntent;
 
-    ServiceConnection serviceConnection = new ServiceConnection() {
+ //   ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         public void onServiceDisconnected(ComponentName name) {
             connected = false;
         }
-    };
+  //  };
 
     private final String SEARCH_API = "https://kamorris.com/lab/abp/booksearch.php?search=";
 
@@ -76,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                 fetchBooks(searchEditText.getText().toString());
             }
         });
-
+        seekBar = findViewById(R.id.seekBar);
         /*
         If we previously saved a book search and/or selected a book, then use that
         information to set up the necessary instance variables
@@ -207,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         super.onDestroy();
         unbindService(serviceConnection);
     }
-    
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -222,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         if(connected) {
             int bookId = book.getId();
             //Start playing
+            startService(serviceIntent);
         }
     }
 
@@ -230,6 +232,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     }
 
     public void stopButtonClicked() {
-        //To do
+        if(connected) {
+            stopService((serviceIntent));
+        }
     }
 }
