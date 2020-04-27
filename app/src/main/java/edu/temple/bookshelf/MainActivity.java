@@ -297,7 +297,6 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     public void stopButtonClicked() {
         if(connected) {
             audiobookService.stop();
-
             stopService((serviceIntent));
         }
     }
