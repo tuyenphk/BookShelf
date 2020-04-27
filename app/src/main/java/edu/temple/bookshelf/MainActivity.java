@@ -307,8 +307,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                 int progress = bookProgress.getProgress();
                 int seekTo = (int) (((float) progress / seekBar.getMax()) * selectedBook.getDuration());
                 seekBar.setProgress(seekTo);
-                return false;
             }
+            return false;
         }
     });
 }
