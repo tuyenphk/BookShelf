@@ -1,5 +1,6 @@
 package edu.temple.bookshelf;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
@@ -7,7 +8,9 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.SeekBar;
@@ -57,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         public void onServiceConnected(ComponentName name, IBinder service) {
             connected = true;
             audiobookService = (AudiobookService.MediaControlBinder) service;
+            audiobookService.setProgressHandler(progressHandler);
         }
 
         @Override
@@ -289,4 +293,16 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             stopService((serviceIntent));
         }
     }
+
+    Handler progressHandler = new Handler(new Handler.Callback() {
+
+        @Override
+        public boolean handleMessage(@NonNull Message msg) {
+            AudiobookService.BookProgress bookProgress = (AudiobookService.BookProgress) msg.obj;
+            int bookId = bookProgress.getBookId();
+            int progress = bookProgress.getProgress();
+            seekBar.setProgress(progress);
+            return false;
+        }
+    });
 }
