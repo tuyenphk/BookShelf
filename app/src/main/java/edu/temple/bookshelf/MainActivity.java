@@ -14,6 +14,7 @@ import android.os.Message;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     Book selectedBook;
 
     EditText searchEditText;
+    TextView nowPlaying;
 
     boolean connected;
     Intent serviceIntent;
@@ -82,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 //        serviceIntent = new Intent(MainActivity.this, serviceConnection, BIND_AUTO_CREATE);
 
         searchEditText = findViewById(R.id.searchEditText);
+        nowPlaying = findViewById(R.id.nowPlaying);
 
         /*
         Perform a search
@@ -104,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             selectedBook = savedInstanceState.getParcelable(SELECTED_BOOK_KEY);
 
             audiobookService.play(selectedBook.getId());
+            nowPlaying.setText("Now Playing" + selectedBook.getTitle());
         }
         else
             books = new ArrayList<Book>();
@@ -281,6 +285,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             int bookId = book.getId();
             //Start playing
             audiobookService.play(bookId);
+            nowPlaying.setText("Now Playing: "  + book.getTitle());
             startService(serviceIntent);
         }
     }
