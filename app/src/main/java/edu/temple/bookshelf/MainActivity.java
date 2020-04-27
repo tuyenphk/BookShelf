@@ -93,8 +93,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             }
         });
 
-        seekBar = findViewById(R.id.seekBar);
-
+     //   seekBar = findViewById(R.id.seekBar);
 
         /*
         If we previously saved a book search and/or selected a book, then use that
@@ -167,12 +166,14 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             }
         });
 
-        SeekBar seekBar;
+     //   SeekBar seekBar;
         seekBar = findViewById(R.id.seekBar);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                audiobookService.seekTo(progress);
+                if(fromUser) {
+                    audiobookService.seekTo((int)((float)(progress / seekBar.getMax()) * selectedBook.getDuration()));
+                }
             }
 
             @Override
@@ -301,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             AudiobookService.BookProgress bookProgress = (AudiobookService.BookProgress) msg.obj;
             int bookId = bookProgress.getBookId();
             int progress = bookProgress.getProgress();
-            seekBar.setProgress(progress);
+            seekBar.setProgress((int)((float)(progress / seekBar.getMax()) * selectedBook.getDuration()));
             return false;
         }
     });
