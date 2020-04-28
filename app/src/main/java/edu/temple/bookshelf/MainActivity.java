@@ -96,7 +96,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             }
         });
 
-     //   seekBar = findViewById(R.id.seekBar);
+//        seekBar = findViewById(R.id.seekBar);
+
 
         /*
         If we previously saved a book search and/or selected a book, then use that
@@ -131,7 +132,6 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         /*
         If we have two containers available, load a single instance
         of BookDetailsFragment to display all selected books.
-
         If a book was previously selected, show that book in the book details fragment
         *NOTE* we could have simplified this to a single line by having the
         fragment's newInstance() method ignore a null reference, but this way allow
@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             }
         });
 
-     //   SeekBar seekBar;
+//        SeekBar seekBar;
         seekBar = findViewById(R.id.seekBar);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -297,6 +297,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     public void stopButtonClicked() {
         if(connected) {
             audiobookService.stop();
+            nowPlaying.setText("Now Playing: Nothing");
             stopService((serviceIntent));
         }
     }
