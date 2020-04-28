@@ -1,11 +1,7 @@
 # BOOKSHELF AUDIO
 
-The application will allow a user to play the audio from any book in the collection available on the web service. My goal will be to integrate the library, and thereafter provide controls and feedback to the user when playing an audio-book.
+The application will allow a user to play the audio from any books in the collection available on the web service. My goal will be to integrate the library, and thereafter provide controls and feedback to the user when playing an audio-book. The successful application will display as the following picture below:
 
-# Phone 
+![phone-audio-book-service](phone-audio-book.png)
 
-![phone-audio](img/phone-audio-book.png)
 
-# Tablet
-
-![tablet-audio](img/tablet-audio-book.png)
